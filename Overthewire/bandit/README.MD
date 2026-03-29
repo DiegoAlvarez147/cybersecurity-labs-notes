@@ -239,7 +239,7 @@ grep "millionth" data.txt
 ```
 2. Output:
 ```text
-millionth	dfwvzFQi4mU0wfNbFOe9RoWskMLg7eEc
+millionth	dfwvzFQ...........
 ```
 3. Optional: open the manual to learn more `grep` options:
 ```bash
@@ -258,4 +258,143 @@ man grep
 - How to use `grep` to find specific text quickly in large files
 - How to extract useful data from command output
 - How to use `man grep` to learn command options and flags
+
+### Level 9
+### Goal
+Find the password for the next level in `data.txt`, where all lines are repeated except one unique line.
+
+### Steps
+1. Sort the file and show only lines that appear once:
+```bash
+sort data.txt | uniq -u
+```
+2. Output:
+```text
+4CKMh1JI91bUIZZ..........
+```
+
+### Why this works
+- `sort` groups identical lines together.
+- `uniq -u` prints only lines that are unique (appear exactly once).
+- Since the password is the only non-repeated line, it is returned directly.
+
+### Capture
+![Password screenshot](images/password9.png)
+
+### What I learned
+- How to combine commands with pipes (`|`)
+- Why `uniq` usually needs sorted input
+- How to find a unique value in a large repeated dataset
+
+### Level 10
+### Goal
+Find the password for the next level in `data.txt`, which contains binary data mixed with human-readable text.
+
+### Steps
+1. Extract readable strings from binary data and filter for lines containing "=":
+```bash
+strings data.txt | grep "="
+```
+2. Output (partial):
+```text
+========== the
+9=H`
+[!#=Z
+========== password
+xWf=
+f\Z'========== is
+e=i{\#
+/1=s
+nS=F
+M=Sl
++=LGT
+y =1
+========== FGUW5ilLVJrxX..........
+'+Y=+
+```
+
+### Why this works
+- `strings` extracts printable text sequences from binary files.
+- `grep "="` filters only lines containing the equals sign.
+- The password appears at the end with the `=` character separating it from the word "is".
+
+### Capture
+![Password screenshot](images/password10.png)
+
+### What I learned
+- How to extract readable strings from binary data using `strings`
+- How to identify patterns in mixed binary/text files
+- How `grep` can filter output for specific characters, even in binary data
+
+### Level 11
+### Goal
+Find the password for the next level in `data.txt`, which contains base64-encoded data.
+
+### Steps
+1. List the files in the directory:
+```bash
+ls
+```
+2. Output:
+```text
+data.txt
+```
+3. Decode the base64-encoded data:
+```bash
+base64 -d data.txt
+```
+4. Output:
+```text
+The password is dtR17..............
+```
+
+### Why this works
+- `base64 -d` decodes base64-encoded text back to its original form.
+- The file contains only base64 data, so decoding reveals the password directly.
+- Base64 is a common encoding method (not encryption) for transmitting binary data as text.
+
+### Capture
+![Password screenshot](images/password11.png)
+
+### What I learned
+- How to identify base64-encoded data
+- How to use `base64 -d` to decode files
+- The difference between encoding (reversible) and encryption (requires a key)
+
+### Level 12
+### Goal
+Find the password for the next level. The text in `data.txt` is encoded with ROT13.
+
+### Steps
+1. Read the file:
+```bash
+cat data.txt
+```
+2. Output:
+```text
+Gur cnffjbeq vf 7k16JArUVv5LxVuJfsSVdbbtaHGlw9D4
+```
+3. Decode ROT13 using `tr`:
+```bash
+cat data.txt | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+```
+4. Output:
+```text
+The password is 7x16WNeH.............
+```
+
+### Why this works
+- ROT13 shifts each letter by 13 positions.
+- `tr` maps `A-Z` and `a-z` to their ROT13 equivalents.
+- Decoding reveals the plain text sentence with the password.
+
+### Capture
+![Password screenshot](images/password12.png)
+
+### What I learned
+- How to detect and decode ROT13 text
+- How to use `tr` for character substitution
+- Why simple encodings can be reversed with basic shell tools
+
+
 
