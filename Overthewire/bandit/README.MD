@@ -77,3 +77,185 @@ Without it, bash gets confused and throws a "No such file" error.
 - How to handle filenames with spaces using quotes `" "`
 - How to handle filenames starting with `-` using `--`
 - How to use `ls -la` to inspect files in detail
+
+### Level 4
+### Goal
+Find the password stored in a hidden file in the `~/inhere` directory.
+
+### Steps
+1. Run `ls -al` to list all files, including hidden ones. Look for files that start with `.`
+   - The hidden file is: `...Hiding-From-You`
+2. Run `cat "...Hiding-From-You"` to print the file content and reveal the password.
+
+**Why `-a` flag?**
+By default, `ls` hides files that begin with a dot (`.`). The `-a` flag shows ALL files, including hidden ones.
+
+**Why quotes around the filename?**
+The filename starts with `.` which is unusual. Using quotes ensures bash treats it as a single filename, even with the unusual name.
+
+### Capture
+![Password screenshot](images/password4.png)
+
+### What I learned
+- Hidden files in Linux start with a `.` (dot)
+- Use `ls -a` or `ls -al` to reveal hidden files
+- Files are hidden by convention to keep directories clean, not for security
+
+
+### Level 5
+### Goal
+Find the password among multiple files. Only one file contains human-readable text (ASCII); the rest are binary data.
+
+### Steps
+1. Run `ls -la` to list all files in the `~/inhere` directory.
+   - There are 10 files: `-file00`, `-file01`, ... `-file09`
+2. Use `cat -- -fileXX` to check each file and find the one with readable text.
+   - Most files contain binary/garbled data.
+   - `-file07` contains: `4oQYVPk......` (the password)
+
+**Why `--` again?**
+The filenames start with `-`, so bash would interpret them as flags. Using `--` tells bash "these are filenames, not flags."
+
+**Why do we need to check each file?**
+The challenge teaches us to:
+- Read file content and recognize readable text vs. binary data
+- Manually search through files when you don't know which one contains what
+- Use `cat` to inspect file contents
+
+**Alternative (faster method):**
+You could use `file` command to identify file types:
+```bash
+file -- -file*
+```
+This shows which files are ASCII text vs. binary, so you find the password file instantly.
+
+### Capture
+![Password screenshot](images/password5.png)
+
+### What I learned
+- How to identify readable text vs. binary data
+- Using `--` to handle filenames starting with `-`
+- The `file` command can quickly identify file types
+
+### Level 6
+### Goal
+Find the password file inside `~/inhere` using specific file properties.
+
+### Steps
+1. Run this command:
+```bash
+find -type f -size 1033c ! -executable
+```
+2. The command returns one match:
+```bash
+./maybehere07/.file2
+```
+3. Read the file:
+```bash
+cat ./maybehere07/.file2
+```
+4. Output:
+```text
+HWasn..........
+```
+
+### Why this works
+- `find`: searches recursively from the current directory.
+- `-type f`: only regular files (not directories).
+- `-size 1033c`: only files of exactly 1033 bytes (`c` = bytes).
+- `! -executable`: excludes executable files.
+
+This combination filters the directory until only the correct file remains.
+
+### Capture
+![Password screenshot](images/password6.png)
+
+### What I learned
+- How to use `find` with multiple conditions
+- How to filter by exact file size in bytes
+- How to negate conditions with `!` (not)
+
+### Level 7
+### Goal
+Find the password file anywhere on the system with these properties:
+- Owned by user `bandit7`
+- Owned by group `bandit6`
+- Size exactly `33` bytes
+
+### Steps
+1. Search from root with filters:
+```bash
+find / -type f -user bandit7 -group bandit6 -size 33c
+```
+2. You may see many `Permission denied` messages. This is normal when your user cannot read protected directories.
+3. Hide those errors by redirecting stderr:
+```bash
+find / -type f -user bandit7 -group bandit6 -size 33c 2>/dev/null
+```
+4. Result:
+```text
+/var/lib/dpkg/info/bandit7.password
+```
+5. Read the password file:
+```bash
+cat /var/lib/dpkg/info/bandit7.password
+```
+
+### Why your first `cat` failed
+You used:
+```bash
+cat ./var/lib/dpkg/info/bandit7.password
+```
+`./` means "from the current directory" (for example, `~/var/...`), and that path does not exist.
+
+The correct file is at an absolute path:
+```bash
+cat /var/lib/dpkg/info/bandit7.password
+```
+
+### Why `2>/dev/null` works
+- `2` is stderr (error output)
+- `>` redirects output
+- `/dev/null` discards it
+
+So `2>/dev/null` hides error lines like `Permission denied` and keeps only useful results.
+
+### Capture
+![Password screenshot](images/password7.png)
+
+### What I learned
+- Difference between relative paths (`./...`) and absolute paths (`/...`)
+- How to combine multiple `find` filters
+- How to hide noisy errors with `2>/dev/null`
+
+### Level 8
+### Goal
+Find the password for the next level by searching for the word `millionth` inside a large text file.
+
+### Steps
+1. Search for the line containing `millionth`:
+```bash
+grep "millionth" data.txt
+```
+2. Output:
+```text
+millionth	dfwvzFQi4mU0wfNbFOe9RoWskMLg7eEc
+```
+3. Optional: open the manual to learn more `grep` options:
+```bash
+man grep
+```
+
+### Why this works
+- `grep` searches text line by line for a pattern.
+- `millionth` is unique in the file, so `grep` returns exactly the line you need.
+- The second field in that line is the password.
+
+### Capture
+![Password screenshot](images/password8.png)
+
+### What I learned
+- How to use `grep` to find specific text quickly in large files
+- How to extract useful data from command output
+- How to use `man grep` to learn command options and flags
+
