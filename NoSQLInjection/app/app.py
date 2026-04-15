@@ -5,30 +5,30 @@ import json
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-# Conexión a MongoDB (servicio del docker-compose)
+# Conexión a MongoDB
 client = MongoClient("mongodb://mongo:27017/")
 db = client["lab_db"]
 users = db["users"]
 
-# Crear usuario por defecto
+# Crear usuarios por defecto
 if users.count_documents({}) == 0:
     users.insert_many([
-        {"username": "admin", "password": "1234"},
-        {"username": "ana", "password": "1234"},
-        {"username": "bruno", "password": "1234"},
-        {"username": "carla", "password": "1234"},
-        {"username": "diego", "password": "1234"},
-        {"username": "elena", "password": "1234"},
-        {"username": "fabian", "password": "1234"},
-        {"username": "gabriela", "password": "1234"},
-        {"username": "hector", "password": "1234"},
-        {"username": "isabel", "password": "1234"},
-        {"username": "jorge", "password": "1234"}
+        {"username": "admin", "password": "234"},
+        {"username": "ana", "password": "ana1234"},
+        {"username": "bruno", "password": "bruno1234"},
+        {"username": "carla", "password": "carla1234"},
+        {"username": "diego", "password": "diego1234"},
+        {"username": "elena", "password": "elena1234"},
+        {"username": "fabian", "password": "fabian1234"},
+        {"username": "gabriela", "password": "gabriela1234"},
+        {"username": "hector", "password": "hector1234"},
+        {"username": "isabel", "password": "isabel1234"},
+        {"username": "jorge", "password": "jorge1234"}
     ])
 
 
 def parse_if_json_structure(value):
-    """Parse only JSON object/array payloads to keep common credentials as strings."""
+    """Parsea JSON solo si parece objeto/lista"""
     if not isinstance(value, str):
         return value
 
@@ -52,7 +52,7 @@ def login():
         password = request.form.get("password")
         form_username = username or ""
 
-        # 🔥 VULNERABILIDAD: interpreta input como JSON
+        # 🔥 VULNERABILIDAD 1: interpretar input como JSON
         username = parse_if_json_structure(username)
         password = parse_if_json_structure(password)
 
@@ -61,7 +61,11 @@ def login():
             "password": password
         }
 
-        print("QUERY EJECUTADO:", query)  # 👈 para evidencias
+        # 💣 VULNERABILIDAD 2 (PRO): permitir $where injection
+        if isinstance(username, dict) and "$where" in username:
+            query = username  # reemplaza toda la consulta
+
+        print("🔥 QUERY EJECUTADO:", query)
 
         user = users.find_one(query)
 
@@ -69,7 +73,7 @@ def login():
             session["user"] = str(user["username"])
             return redirect("/dashboard")
         else:
-            error = "Login fallido. Verifica usuario y contraseña."
+            error = "❌ Login fallido. Verifica usuario y contraseña."
 
     return render_template("login.html", error=error, form_username=form_username)
 
@@ -86,6 +90,13 @@ def dashboard():
 def logout():
     session.clear()
     return redirect("/")
+
+
+# 💣 ENDPOINT PARA DEMOSTRAR EXFILTRACIÓN
+@app.route("/debug_users")
+def debug_users():
+    data = list(users.find({}, {"_id": 0}))
+    return str(data)
 
 
 if __name__ == "__main__":
