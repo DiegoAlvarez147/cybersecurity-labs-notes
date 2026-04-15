@@ -18,22 +18,34 @@ if users.count_documents({}) == 0:
     })
 
 
+def parse_if_json_structure(value):
+    """Parse only JSON object/array payloads to keep common credentials as strings."""
+    if not isinstance(value, str):
+        return value
+
+    trimmed = value.strip()
+    if not trimmed.startswith("{") and not trimmed.startswith("["):
+        return value
+
+    try:
+        return json.loads(trimmed)
+    except Exception:
+        return value
+
+
 @app.route("/", methods=["GET", "POST"])
 def login():
+    error = None
+    form_username = ""
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        form_username = username or ""
 
         # 🔥 VULNERABILIDAD: interpreta input como JSON
-        try:
-            username = json.loads(username)
-        except:
-            pass
-
-        try:
-            password = json.loads(password)
-        except:
-            pass
+        username = parse_if_json_structure(username)
+        password = parse_if_json_structure(password)
 
         query = {
             "username": username,
@@ -48,9 +60,9 @@ def login():
             session["user"] = str(user["username"])
             return redirect("/dashboard")
         else:
-            return "❌ Login fallido"
+            error = "Login fallido. Verifica usuario y contraseña."
 
-    return render_template("login.html")
+    return render_template("login.html", error=error, form_username=form_username)
 
 
 @app.route("/dashboard")

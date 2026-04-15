@@ -1,13 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | NoSQL Injection Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-<body>
-    <h2>Bienvenido {{ user }}</h2>
+<body class="page page-dashboard">
+    <div class="bg-grid"></div>
 
-    <p>✔ Login exitoso</p>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span>NoSQL Lab</span>
+        </div>
+        <a class="logout-link" href="/logout">Cerrar sesión</a>
+    </header>
 
-    <a href="/logout">Cerrar sesión</a>
+    <main class="dashboard-wrap">
+        <section class="welcome-card">
+            <p class="mono">SESSION_ACTIVE</p>
+            <h1>Bienvenido, {{ user }}</h1>
+            <p>
+                Acceso concedido al panel de pruebas. Desde aquí puedes continuar con escenarios de autenticación y análisis del flujo.
+            </p>
+            <span class="status success">Login exitoso</span>
+        </section>
+
+        <section class="info-card">
+            <h2>Resumen rápido</h2>
+            <ul>
+                <li>Aplicación web montada con Flask.</li>
+                <li>Base de datos MongoDB en contenedor Docker.</li>
+                <li>Laboratorio orientado a prácticas de NoSQL Injection.</li>
+            </ul>
+        </section>
+    </main>
 </body>
 </html>
