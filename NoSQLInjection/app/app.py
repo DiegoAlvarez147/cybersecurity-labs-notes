@@ -12,10 +12,19 @@ users = db["users"]
 
 # Crear usuario por defecto
 if users.count_documents({}) == 0:
-    users.insert_one({
-        "username": "admin",
-        "password": "1234"
-    })
+    users.insert_many([
+        {"username": "admin", "password": "1234"},
+        {"username": "ana", "password": "1234"},
+        {"username": "bruno", "password": "1234"},
+        {"username": "carla", "password": "1234"},
+        {"username": "diego", "password": "1234"},
+        {"username": "elena", "password": "1234"},
+        {"username": "fabian", "password": "1234"},
+        {"username": "gabriela", "password": "1234"},
+        {"username": "hector", "password": "1234"},
+        {"username": "isabel", "password": "1234"},
+        {"username": "jorge", "password": "1234"}
+    ])
 
 
 def parse_if_json_structure(value):
