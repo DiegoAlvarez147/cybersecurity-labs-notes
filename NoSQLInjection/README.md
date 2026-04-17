@@ -87,7 +87,7 @@ Username:
 admin
 
 Password:
-1234
+234
 
 Result: Login successful
 
@@ -270,7 +270,7 @@ http://localhost:5000
 
 ## 👤 Usuarios
 
-admin / 1234  
+admin / 234  
 ana / 1234  
 bruno / 1234  
 ...  
@@ -297,7 +297,7 @@ Usuario:
 admin
 
 Contraseña:
-1234
+234
 
 Resultado: exitoso
 
